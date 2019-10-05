@@ -1,36 +1,58 @@
 module.exports = function check(str, bracketsConfig) {
-    console.log("start " + str);
-    let st = "012345";
-    console.log(st.slice(0, 1) + st.slice(2,3));
+    let x = true;
+    let result = true;
 
-    function findBrackets(string, brackets) {
-        if(string.length%2 != 0)
-            return false;
-        let openBracketIndex = string.lastIndexOf(brackets[0]);
-        let closeBracketIndex = string.slice(openBracketIndex).indexOf(brackets[1]);
-        closeBracketIndex += openBracketIndex;
-        console.log("openBracketIndex " + openBracketIndex + " closeBracketIndex " + closeBracketIndex);
-
-        if (openBracketIndex < 0 || closeBracketIndex < 0) {  //brackets aren't pair
-            console.log("not pair");
+    function findBrackets(brackets) {
+        //for faster, if expression incorrect at start, because sum of brackets eval
+        if(str.length%2 != 0) {
+            result = false;
             return false;
         }
-        if((closeBracketIndex < openBracketIndex) || ((closeBracketIndex - openBracketIndex + 1)%2 != 0))
+
+        let openBracketIndex;
+        let closeBracketIndex;
+        //close- and open- brackets are equal
+        if(brackets[0] == brackets[1]) {
+            openBracketIndex = str.indexOf(brackets[0]);
+            closeBracketIndex = str.slice(openBracketIndex+1).indexOf(brackets[1]);
+            closeBracketIndex = closeBracketIndex == 0 ? 1 : closeBracketIndex;
+            console.log("openBracketIndex " + openBracketIndex + " closeBracketIndex " + closeBracketIndex);
+            console.log("brackets[0] == brackets[1]");
+        }
+        else { //close- and open- brackets aren't equal
+            openBracketIndex = str.lastIndexOf(brackets[0]);
+            closeBracketIndex = str.slice(openBracketIndex).indexOf(brackets[1]);
+        }
+        //not pair
+        if ((openBracketIndex == -1 && closeBracketIndex > 0) || (closeBracketIndex == -1 && openBracketIndex > 0)) {  //brackets aren't pair
+            console.log("not pair");
+            result = false;
             return false;
-        string = string.slice(0, openBracketIndex) + string.slice(openBracketIndex+1, closeBracketIndex) + string.slice(closeBracketIndex+1);
-        console.log("slices " + string);
-        if(str.indexOf(brackets[0]) !== -1 || str.indexOf(brackets[1]) !== -1)
+        }
+        //no such brackets
+        if(openBracketIndex == -1 && closeBracketIndex == -1) {
+            result = true;
             return true;
-        findBrackets(string, brackets);
+        }
+        closeBracketIndex += openBracketIndex;
+        //not correct or expression into incorrect
+        if((closeBracketIndex < openBracketIndex) || ((closeBracketIndex - openBracketIndex + 1)%2 != 0)) {
+            result = false;
+            return false;
+        }
+        //delete brackets
+        str = str.slice(0, openBracketIndex) + str.slice(openBracketIndex+1, closeBracketIndex) + str.slice(closeBracketIndex+1);
+        if(str.length == 0) {
+            result = true;
+            return true;
+        }
+        findBrackets(brackets);
+        return result;
     }
 
     for (let i = 0; i < bracketsConfig.length; i++) {
-        do {
-            console.log("bracketsConfig " + bracketsConfig[i][0]);
-            //delete pair brackets
-            return findBrackets(str, bracketsConfig[i]);
-            }
-            while (str.indexOf(bracketsConfig[i][0]) !== -1 || str.indexOf(bracketsConfig[i][1]) !== -1) ;
+            x =  findBrackets(bracketsConfig[i]);
+            if(!x) return false;
     }
-    return true;
+    return x;
 }
